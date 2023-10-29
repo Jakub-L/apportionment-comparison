@@ -1,5 +1,6 @@
 import argparse
 import csv
+import json
 import os
 
 
@@ -37,10 +38,13 @@ def get_seats(folder_path: str) -> dict[int, int]:
         os.path.join(folder_path, "constituencies.csv"), "r", encoding="utf-8-sig"
     ) as file:
         reader = csv.DictReader(file, delimiter=";")
-        return {int(row["Numer okręgu"]): int(row["Liczba mandatów"]) for row in reader}
+        return {
+            int(row["Numer okręgu"]): {"seats": int(row["Liczba mandatów"])}
+            for row in reader
+        }
 
 
-def get_results(folder_path: str) -> dict[int, dict[str, int]]:
+def get_votes(folder_path: str) -> dict[int, dict[str, int]]:
     """
     Reads a CSV file containing election results and returns a dictionary of dictionaries.
     The outer dictionary has keys representing the constituency number, and the values are
@@ -59,7 +63,9 @@ def get_results(folder_path: str) -> dict[int, dict[str, int]]:
         reader = csv.DictReader(file, delimiter=";")
         return {
             int(row["Nr okręgu"]): {
-                key: int(row[key] or 0) for key in row if key.startswith("KOMITET")
+                key.replace("KOMITET WYBORCZY ", "").title(): int(row[key] or 0)
+                for key in row
+                if key.startswith("KOMITET")
             }
             for row in reader
         }
@@ -68,7 +74,13 @@ def get_results(folder_path: str) -> dict[int, dict[str, int]]:
 def main():
     directory = read_directory()
     seats = get_seats(directory)
-    results = get_results(directory)
+    votes = get_votes(directory)
+    results = {
+        constituency: seats[constituency] | votes[constituency]
+        for constituency in seats
+    }
+    with open(os.path.join(directory, "results.json"), "w") as file:
+        json.dump(results, file, indent=4)
 
 
 if __name__ == "__main__":
