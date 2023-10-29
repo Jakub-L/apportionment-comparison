@@ -100,7 +100,7 @@ def d_hondt_formula(committee_votes: int, current_committee_seats: int) -> float
     return committee_votes / (current_committee_seats + 1)
 
 
-def saint_lague_formula(committee_votes: int, current_committee_seats: int) -> float:
+def sainte_lague_formula(committee_votes: int, current_committee_seats: int) -> float:
     return committee_votes / (2 * current_committee_seats + 1)
 
 
@@ -176,15 +176,53 @@ def main():
         seats = json.load(file)
 
     filtered_votes = filter_by_national_threshold(votes, 0.05, 0.08, 0)
-    d_hondt = count_national_seats(
+
+    apportionment_methods = [
         {
-            constituency: greatest_divisor_method(
-                filtered_votes[constituency], seats[constituency], d_hondt_formula
-            )
-            for constituency in filtered_votes
-        }
-    )
-    pprint.pprint(d_hondt)
+            "name": "D'Hondt",
+            "method": greatest_divisor_method,
+            "aux_function": d_hondt_formula,
+        },
+        {
+            "name": "Sainte-Laguë",
+            "method": greatest_divisor_method,
+            "aux_function": sainte_lague_formula,
+        },
+        {
+            "name": "Hare",
+            "method": largest_remainder_method,
+            "aux_function": hare_quota,
+        },
+        {
+            "name": "Droop",
+            "method": largest_remainder_method,
+            "aux_function": droop_quota,
+        },
+        {
+            "name": "Hagenbach-Bischoff",
+            "method": largest_remainder_method,
+            "aux_function": hagenbach_bischoff_quota,
+        },
+        {
+            "name": "Imperiali",
+            "method": largest_remainder_method,
+            "aux_function": imperiali_quota,
+        },
+    ]
+
+    results = {}
+    for apportionment_method in apportionment_methods:
+        name, method, aux_function = apportionment_method.values()
+        results[name] = count_national_seats(
+            {
+                constituency: method(
+                    filtered_votes[constituency], seats[constituency], aux_function
+                )
+                for constituency in filtered_votes
+            }
+        )
+
+    pprint.pprint(results)
 
 
 if __name__ == "__main__":
