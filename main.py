@@ -5,7 +5,7 @@ import os
 import pprint
 
 
-def read_directory():
+def read_arguments():
     """
     Reads the directory path from the command line arguments and returns it.
 
@@ -19,8 +19,29 @@ def read_directory():
     parser.add_argument(
         "directory", help="The directory containing the files to process"
     )
+    parser.add_argument(
+        "--coalition-threshold",
+        "-ct",
+        type=float,
+        default=0.08,
+        help="Electoral threshold for coalitions",
+    )
+    parser.add_argument(
+        "--minority-threshold",
+        "-mt",
+        type=float,
+        default=0,
+        help="Electoral threshold for minority committees",
+    )
+    parser.add_argument(
+        "--base-threshold",
+        "-bt",
+        type=float,
+        default=0.05,
+        help="Electoral threshold for generic committees",
+    )
     args = parser.parse_args()
-    return args.directory
+    return args
 
 
 def filter_by_national_threshold(
@@ -165,17 +186,25 @@ def count_national_seats(results: dict[int, dict[str, int]]) -> dict[str, int]:
     for constituency in results:
         for committee in results[constituency]:
             counts[committee] += results[constituency][committee]
-    return counts
+    return dict(counts)
 
 
 def main():
-    directory = read_directory()
+    args = read_arguments()
+    directory, coalition_threshold, minority_threshold, base_threshold = (
+        args.directory,
+        args.coalition_threshold,
+        args.minority_threshold,
+        args.base_threshold,
+    )
     with open(os.path.join(directory, "votes.json"), "r", encoding="utf-8-sig") as file:
         votes = json.load(file)
     with open(os.path.join(directory, "seats.json"), "r", encoding="utf-8-sig") as file:
         seats = json.load(file)
 
-    filtered_votes = filter_by_national_threshold(votes, 0.05, 0.08, 0)
+    filtered_votes = filter_by_national_threshold(
+        votes, base_threshold, coalition_threshold, minority_threshold
+    )
 
     apportionment_methods = [
         {
