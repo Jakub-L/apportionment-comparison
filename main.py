@@ -79,12 +79,12 @@ def filter_by_national_threshold(
                     and national_votes[committee] > (coalition_threshold * total_votes)
                 )
                 or (
-                    "Koalicyjny" not in committee
-                    and national_votes[committee] > (committee_threshold * total_votes)
-                )
-                or (
                     "Mniejszość" in committee
                     and national_votes[committee] > (minority_threshold * total_votes)
+                )
+                or (
+                    "Koalicyjny" not in committee
+                    and national_votes[committee] > (committee_threshold * total_votes)
                 )
             ):
                 filtered_results[constituency][committee] = votes
