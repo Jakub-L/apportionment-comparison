@@ -2,15 +2,14 @@ import argparse
 import collections
 import json
 import os
-import pprint
 
 
 def read_arguments():
     """
-    Reads the directory path from the command line arguments and returns it.
+    Reads command line arguments.
 
     Returns:
-    str: The path to the directory containing the files to process.
+        argparse.Namespace: A namespace containing the arguments passed to the script.
     """
     parser = argparse.ArgumentParser(
         prog="Election data processor",
@@ -40,8 +39,7 @@ def read_arguments():
         default=0.05,
         help="Electoral threshold for generic committees",
     )
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def filter_by_national_threshold(
@@ -55,9 +53,9 @@ def filter_by_national_threshold(
 
     Args:
         votes (dict[str, int]): A dictionary containing the number of votes received by each committee.
-        committee_threshold (int): The vote threshold to be achieved by a party committee
-        coalition_threshold (int): The vote threshold to be achieved by a coalition
-        minority_threshold (int): The vote threshold to be achieved by a minority committee
+        committee_threshold (float): The vote threshold to be achieved by a party committee
+        coalition_threshold (float): The vote threshold to be achieved by a coalition
+        minority_threshold (float): The vote threshold to be achieved by a minority committee
 
     Returns:
         dict[str, int]: A dictionary containing the number of votes received by each committee that
@@ -118,10 +116,30 @@ def greatest_divisor_method(
 
 
 def d_hondt_formula(committee_votes: int, current_committee_seats: int) -> float:
+    """
+    Calculates the quotient for the D'Hondt apportionment method.
+
+    Args:
+        committee_votes (int): The total number of votes received by the committee.
+        current_committee_seats (int): The current number of seats held by the committee.
+
+    Returns:
+        float: The quotient calculated using the D'Hondt formula.
+    """
     return committee_votes / (current_committee_seats + 1)
 
 
 def sainte_lague_formula(committee_votes: int, current_committee_seats: int) -> float:
+    """
+    Calculates the quotient for the Sainte-Laguë apportionment method.
+
+    Args:
+        committee_votes (int): The total number of votes received by the committee.
+        current_committee_seats (int): The current number of seats held by the committee.
+
+    Returns:
+        float: The quotient calculated using the Sainte-Laguë formula.
+    """
     return committee_votes / (2 * current_committee_seats + 1)
 
 
@@ -157,18 +175,58 @@ def largest_remainder_method(
 
 
 def hare_quota(total_votes: int, seats: int) -> float:
+    """
+    Calculates the Hare quota for a given number of total votes and seats.
+
+    Args:
+        total_votes (int): The total number of votes cast.
+        seats (int): The number of seats to be filled.
+
+    Returns:
+        float: The Hare quota
+    """
     return total_votes / seats
 
 
 def droop_quota(total_votes: int, seats: int) -> float:
+    """
+    Calculates the Droop quota for a given number of total votes and seats.
+
+    Args:
+        total_votes (int): The total number of votes cast.
+        seats (int): The number of seats to be filled.
+
+    Returns:
+        float: The Droop quota
+    """
     return int(total_votes / (seats + 1)) + 1
 
 
 def hagenbach_bischoff_quota(total_votes: int, seats: int) -> float:
+    """
+    Calculates the Hagenbach-Bischoff quota for a given number of total votes and seats.
+
+    Args:
+        total_votes (int): The total number of votes cast.
+        seats (int): The number of seats to be filled.
+
+    Returns:
+        float: The Hagenbach-Bischoff quota
+    """
     return total_votes / (seats + 1)
 
 
 def imperiali_quota(total_votes: int, seats: int) -> float:
+    """
+    Calculates the Imperiali quota for a given number of total votes and seats.
+
+    Args:
+        total_votes (int): The total number of votes cast.
+        seats (int): The number of seats to be filled.
+
+    Returns:
+        float: The Imperiali quota
+    """
     return total_votes / (seats + 2)
 
 
@@ -259,13 +317,11 @@ def main():
         print("{:-^{width}}".format(name, width=longest_committee_name + 6))
         for committee in seat_totals:
             print(
-                "{:<{width}} - {:>3}".format(
+                "{:<{width}} | {:>3}".format(
                     committee, seat_totals[committee], width=longest_committee_name
                 )
             )
         print("\n")
-
-    # pprint.pprint(results)
 
 
 if __name__ == "__main__":
