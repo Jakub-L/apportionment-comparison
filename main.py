@@ -205,6 +205,13 @@ def main():
     filtered_votes = filter_by_national_threshold(
         votes, base_threshold, coalition_threshold, minority_threshold
     )
+    longest_committee_name = max(
+        [
+            len(committee)
+            for constituency in filtered_votes
+            for committee in filtered_votes[constituency]
+        ]
+    )
 
     apportionment_methods = [
         {
@@ -239,10 +246,9 @@ def main():
         },
     ]
 
-    results = {}
     for apportionment_method in apportionment_methods:
         name, method, aux_function = apportionment_method.values()
-        results[name] = count_national_seats(
+        seat_totals = count_national_seats(
             {
                 constituency: method(
                     filtered_votes[constituency], seats[constituency], aux_function
@@ -250,8 +256,16 @@ def main():
                 for constituency in filtered_votes
             }
         )
+        print("{:-^{width}}".format(name, width=longest_committee_name + 6))
+        for committee in seat_totals:
+            print(
+                "{:<{width}} - {:>3}".format(
+                    committee, seat_totals[committee], width=longest_committee_name
+                )
+            )
+        print("\n")
 
-    pprint.pprint(results)
+    # pprint.pprint(results)
 
 
 if __name__ == "__main__":
