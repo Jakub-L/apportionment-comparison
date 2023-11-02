@@ -46,4 +46,4 @@ There is a `data-processor.py` file in the `data` directory that can be used to 
 
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+[MIT](LICENSE.md)
