@@ -1,0 +1,16 @@
+{
+  "seatFile": {
+    "filename": "constituencies.csv",
+    "delimiter": ";",
+    "encoding": "utf-8-sig",
+    "constituencyHeader": "Numer okręgu",
+    "seatHeader": "Liczba mandatów"
+  },
+  "votesFile": {
+    "filename": "votes.csv",
+    "delimiter": ";",
+    "encoding": "utf-8-sig",
+    "constituencyHeader": "Nr okręgu",
+    "committeePattern": "KOMITET"
+  }
+}
