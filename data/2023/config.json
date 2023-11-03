@@ -1,5 +1,5 @@
 {
-  "seatFile": {
+  "seatsFile": {
     "filename": "constituencies.csv",
     "delimiter": ";",
     "encoding": "utf-8-sig",
